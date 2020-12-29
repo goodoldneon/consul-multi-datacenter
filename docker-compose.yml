@@ -1,0 +1,78 @@
+version: "3.4"
+services:
+  consul-server-dc1-1:
+    container_name: consul-server-dc1-1
+    image: consul:1.9
+    ports:
+      - 127.0.0.1:8500:8500
+    expose:
+      - 8300
+      - 8301
+      - 8301/udp
+      - 8302
+      - 8302/udp
+      - 8400
+      - 8500
+      - 8600
+      - 8600/udp
+    networks:
+      dc1:
+        ipv4_address: 10.5.1.1
+      wan:
+        ipv4_address: 10.4.1.1
+    volumes:
+      - ./consul-config:/config
+    command: "agent -config-file=/config/server-dc1.hcl -node server-1"
+
+  consul-client-dc1-1:
+    container_name: consul-client-dc1-1
+    image: consul:1.9
+    networks:
+      dc1:
+    command: "agent -retry-join 10.5.1.1 -client 0.0.0.0 -datacenter dc1 -node client-1"
+
+  consul-server-dc2-1:
+    container_name: consul-server-dc2-1
+    image: consul:1.9
+    expose:
+      - 8300
+      - 8301
+      - 8301/udp
+      - 8302
+      - 8302/udp
+      - 8400
+      - 8500
+      - 8600
+      - 8600/udp
+    networks:
+      dc2:
+        ipv4_address: 10.6.1.1
+      wan:
+        ipv4_address: 10.4.2.1
+    volumes:
+      - ./consul-config:/config
+    command: "agent -config-file=/config/server-dc2.hcl -node server-1"
+
+  consul-client-dc2-1:
+    container_name: consul-client-dc2-1
+    image: consul:1.9
+    networks:
+      dc2:
+    command: "agent -retry-join 10.6.1.1 -client 0.0.0.0 -datacenter dc2 -node client-1"
+
+networks:
+  dc1:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+  dc2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.6.0.0/16
+  wan:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.4.0.0/16
