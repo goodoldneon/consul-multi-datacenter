@@ -27,7 +27,7 @@ RUN \
     mkdir -p /consul/data \
     && mkdir -p /consul/config
 COPY consul/config /consul/config
-COPY supervisor /etc
+COPY supervisord /etc
 
 # Application
 EXPOSE 80
