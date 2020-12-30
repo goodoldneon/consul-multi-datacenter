@@ -1,0 +1,5 @@
+import os
+
+CONSUL_DATACENTER = os.environ['CONSUL_DATACENTER']
+INSTANCE_NUM = os.environ['INSTANCE_NUM']
+SERVICE_NAME = os.environ['SERVICE_NAME']

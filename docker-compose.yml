@@ -1,64 +1,58 @@
 version: "3.4"
 services:
   consul-server-dc1-1:
-    container_name: consul-server-dc1-1
+    container_name: server-dc1-1
     image: consul:1.9
     ports:
       - 127.0.0.1:8500:8500
-    expose:
-      - 8300
-      - 8301
-      - 8301/udp
-      - 8302
-      - 8302/udp
-      - 8400
-      - 8500
-      - 8600
-      - 8600/udp
     networks:
       dc1:
         ipv4_address: 10.5.1.1
       wan:
         ipv4_address: 10.4.1.1
     volumes:
-      - ./consul-config:/config
+      - ./consul-config/server:/config
     command: "agent -config-file=/config/server-dc1.hcl -node server-1"
 
-  consul-client-dc1-1:
-    container_name: consul-client-dc1-1
-    image: consul:1.9
+  frontend-client-dc1-1:
+    container_name: frontend-dc1-1
+    build:
+      context: services/frontend
+    environment:
+      CONSUL_DATACENTER: dc1
+      CONSUL_SERVER_HOST: 10.5.1.1
+      INSTANCE_NUM: 1
+      SERVICE_NAME: frontend
+    ports:
+      - 127.0.0.1:9001:80
     networks:
       dc1:
-    command: "agent -retry-join 10.5.1.1 -client 0.0.0.0 -datacenter dc1 -node client-1"
 
   consul-server-dc2-1:
-    container_name: consul-server-dc2-1
+    container_name: server-dc2-1
     image: consul:1.9
-    expose:
-      - 8300
-      - 8301
-      - 8301/udp
-      - 8302
-      - 8302/udp
-      - 8400
-      - 8500
-      - 8600
-      - 8600/udp
     networks:
       dc2:
         ipv4_address: 10.6.1.1
       wan:
         ipv4_address: 10.4.2.1
     volumes:
-      - ./consul-config:/config
+      - ./consul-config/server:/config
     command: "agent -config-file=/config/server-dc2.hcl -node server-1"
 
-  consul-client-dc2-1:
-    container_name: consul-client-dc2-1
-    image: consul:1.9
+  frontend-client-dc2-1:
+    container_name: frontend-dc2-1
+    build:
+      context: services/frontend
+    environment:
+      CONSUL_DATACENTER: dc2
+      CONSUL_SERVER_HOST: 10.6.1.1
+      INSTANCE_NUM: 1
+      SERVICE_NAME: frontend
+    ports:
+      - 127.0.0.1:9002:80
     networks:
       dc2:
-    command: "agent -retry-join 10.6.1.1 -client 0.0.0.0 -datacenter dc2 -node client-1"
 
 networks:
   dc1:
